@@ -17,9 +17,9 @@ public class ConfigValue<T> {
 	private Class<T> type;
 
 	// Only used when generating a schema
-	final List<Constraint> constraintList;
+	final List<Constraint<T>> constraintList;
 
-	public ConfigValue(String comment, String name, BiConsumer<T, T> consumer, Predicate<T> restriction, T value, Class<T> type, List<Constraint> constraintList) {
+	public ConfigValue(String comment, String name, BiConsumer<T, T> consumer, Predicate<T> restriction, T value, Class<T> type, List<Constraint<T>> constraintList) {
 		this.comment = comment;
 		this.name = name;
 		this.consumer = consumer;
@@ -60,7 +60,7 @@ public class ConfigValue<T> {
 		return !comment.isEmpty();
 	}
 
-	public List<Constraint> getConstraintList() {
+	public List<Constraint<T>> getConstraintList() {
 		return constraintList;
 	}
 

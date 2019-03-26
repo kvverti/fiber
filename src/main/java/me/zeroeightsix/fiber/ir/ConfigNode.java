@@ -24,14 +24,14 @@ public final class ConfigNode {
 		this(null, name);
 	}
 
-	/**
-	 * Creates a new {@link ConfigValueBuilder} with type {@link Object}
-	 *
-	 * @return the created {@link ConfigValueBuilder}
-	 */
-	public ConfigValueBuilder<Object> builder() {
-		return builder(Object.class);
-	}
+//	/**
+//	 * Creates a new {@link ConfigValueBuilder} with type {@link Object}
+//	 *
+//	 * @return the created {@link ConfigValueBuilder}
+//	 */
+//	public <T extends Comparable<T>> ConfigValueBuilder<T> builder() {
+//		return builder(Object.class);
+//	}
 
 	/**
 	 * Creates a new {@link ConfigValueBuilder}
@@ -40,7 +40,7 @@ public final class ConfigNode {
 	 * @param <T>   The class of type of the to-be created {@link ConfigValueBuilder}
 	 * @return The created {@link ConfigValueBuilder}
 	 */
-	public <T> ConfigValueBuilder<T> builder(Class<T> clazz) {
+	public <T extends Comparable<T>> ConfigValueBuilder<T> builder(Class<T> clazz) {
 		return new ConfigValueBuilder<>(this, clazz);
 	}
 

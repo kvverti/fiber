@@ -18,7 +18,7 @@ public class ConfigValueBuilder<T> {
 	T value;
 	String comment = "";
 	private List<BiConsumer<T, T>> consumers = new ArrayList<>();
-	private List<Constraint> constraints = new ArrayList<>();
+	protected List<Constraint<T>> constraints = new ArrayList<>();
 	private String name;
 	private ConfigNode node;
 	private boolean isFinal = false;
@@ -31,9 +31,9 @@ public class ConfigValueBuilder<T> {
 	/**
 	 * Attempts to create a copy of given ConfigValueBuilder. Will attempt to cast everything.
 	 */
-	protected ConfigValueBuilder(ConfigValueBuilder<Object> copy, Class<T> type) {
+	protected ConfigValueBuilder(ConfigValueBuilder<T> copy, Class<T> type) {
 		this(copy.node, type);
-		this.value = (T) copy.value;
+		this.value = copy.value;
 		this.comment = copy.comment;
 		this.consumers = copy.consumers.stream().map(consumer -> (BiConsumer<T, T>) consumer::accept).collect(Collectors.toList());
 		this.name = copy.name;

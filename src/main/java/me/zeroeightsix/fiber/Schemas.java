@@ -23,7 +23,7 @@ public class Schemas {
 		return object;
 	}
 
-	private static JsonObject createSchema(ConfigValue configValue) {
+	private static <T> JsonObject createSchema(ConfigValue<T> configValue) {
 		JsonObject object = new JsonObject();
 		object.put("comment", new JsonPrimitive(configValue.getComment()));
 		object.put("class", new JsonPrimitive(configValue.getType().getTypeName()));
@@ -31,9 +31,9 @@ public class Schemas {
 		return object;
 	}
 
-	private static JsonElement createSchema(List<Constraint> constraintList) {
+	private static <T> JsonElement createSchema(List<Constraint<T>> constraintList) {
 		JsonArray array = new JsonArray();
-		for (Constraint constraint : constraintList) {
+		for (Constraint<T> constraint : constraintList) {
 			JsonObject object = new JsonObject();
 			object.put("identifier", new JsonPrimitive(constraint.getType().getIdentifier().toString()));
 			if (constraint instanceof ValuedConstraint) {
