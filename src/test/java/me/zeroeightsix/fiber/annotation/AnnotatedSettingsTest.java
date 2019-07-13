@@ -1,5 +1,7 @@
 package me.zeroeightsix.fiber.annotation;
 
+import me.zeroeightsix.fiber.annotation.constraint.Range;
+import me.zeroeightsix.fiber.annotation.exception.MalformedFieldException;
 import me.zeroeightsix.fiber.exception.FiberException;
 import me.zeroeightsix.fiber.tree.ConfigNode;
 import me.zeroeightsix.fiber.tree.ConfigValue;
@@ -91,6 +93,20 @@ class AnnotatedSettingsTest {
         assertEquals(false, value.setValue(20));
     }
 
+    @Test
+    @DisplayName("Invalid numerical constraints")
+    void testInvalidNumericalConstraints() throws FiberException {
+        InvalidNumericalConstraintsPojo pojo = new InvalidNumericalConstraintsPojo();
+        assertThrows(MalformedFieldException.class, () -> AnnotatedSettings.applyToNode(node, pojo));
+    }
+
+    @Test
+    @DisplayName("Invalid constraint type")
+    void testInvalidConstraintType() throws FiberException {
+        InvalidValueTypePojo pojo = new InvalidValueTypePojo();
+        assertThrows(MalformedFieldException.class, () -> AnnotatedSettings.applyToNode(node, pojo));
+    }
+
     private static class NoFinalPojo {
         private int a = 5;
     }
@@ -124,9 +140,18 @@ class AnnotatedSettingsTest {
     }
 
     private static class NumericalConstraintsPojo {
-        @Constrain.Min(0)
-        @Constrain.Max(10)
+        @Range(min = 0, max = 10)
         private final int a = 5;
+    }
+
+    private static class InvalidNumericalConstraintsPojo {
+        @Range(min = 3, max = 0)
+        private final int a = 5;
+    }
+
+    private static class InvalidValueTypePojo {
+        @Range(min = 0)
+        private final String a = "";
     }
 
 }

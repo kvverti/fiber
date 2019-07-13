@@ -18,16 +18,6 @@ public final class CompositeConstraintBuilder<T> extends AbstractConstraintsBuil
 		this.compositeType = compositeType;
 	}
 
-	public CompositeConstraintBuilder<T> minNumerical(T min) {
-		addNumericalLowerBound(min);
-		return this;
-	}
-
-	public CompositeConstraintBuilder<T> maxNumerical(T min) {
-		addNumericalUpperBound(min);
-		return this;
-	}
-
 	public ConstraintsBuilder<T> finishComposite() {
 		addConstraints();
 		return source;
@@ -53,7 +43,7 @@ public final class CompositeConstraintBuilder<T> extends AbstractConstraintsBuil
 		public final List<Constraint<? super T>> constraints;
 
 		public AbstractCompositeConstraint(CompositeType type, List<Constraint<? super T>> constraints) {
-			super(Constraints.COMPOSITE, type.getName());
+			super(Constraints.COMPOSITE, Object.class, type.getName());
 			this.constraints = constraints;
 		}
 

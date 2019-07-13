@@ -3,10 +3,8 @@ package me.zeroeightsix.fiber.constraint;
 import me.zeroeightsix.fiber.Identifier;
 
 public enum Constraints {
-	NUMERICAL_LOWER_BOUND(true, identifier("min")),
-	NUMERICAL_UPPER_BOUND(true, identifier("max")),
-	STRING_MINIMUM_LENGTH(true, identifier("min_length")),
-	STRING_MAXIMUM_LENGTH(true, identifier("max_length")),
+	RANGE(false, identifier("range")),
+	STRING_LENGTH(false, identifier("length")),
 	STRING_STARTING_WITH(false, identifier("starts_with")),
 	STRING_ENDING_WITH(false, identifier("ends_with")),
 	FINAL(false, identifier("final")),

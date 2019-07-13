@@ -4,8 +4,8 @@ public abstract class ValuedConstraint<T, A> extends Constraint<A> { // A is the
 
 	private final T value;
 
-	public ValuedConstraint(Constraints type, T value) {
-		super(type);
+	public ValuedConstraint(Constraints type, Class<?> valueType, T value) {
+		super(type, valueType);
 		this.value = value;
 	}
 

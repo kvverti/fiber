@@ -1,7 +1,9 @@
 package me.zeroeightsix.fiber.annotation;
 
 import me.zeroeightsix.fiber.NodeOperations;
+import me.zeroeightsix.fiber.annotation.constraint.ConstraintClass;
 import me.zeroeightsix.fiber.builder.constraint.ConstraintsBuilder;
+import me.zeroeightsix.fiber.constraint.Constraint;
 import me.zeroeightsix.fiber.exception.FiberException;
 import me.zeroeightsix.fiber.annotation.exception.MalformedConstructorException;
 import me.zeroeightsix.fiber.annotation.exception.MalformedFieldException;
@@ -11,6 +13,7 @@ import me.zeroeightsix.fiber.annotation.convention.NoNamingConvention;
 import me.zeroeightsix.fiber.annotation.convention.SettingNamingConvention;
 import me.zeroeightsix.fiber.tree.ConfigValue;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -123,15 +126,40 @@ public class AnnotatedSettings {
         builderMap.put(name, new BuilderWithClass<>(builder, type));
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T> void parseConstraints(Field field, ConfigValueBuilder<T> builder) {
+    private static <T> void parseConstraints(Field field, ConfigValueBuilder<T> builder) throws MalformedFieldException {
         ConstraintsBuilder<T> constraintsBuilder = builder.constraints();
-        // Check for constraints
-        if (field.isAnnotationPresent(Constrain.Min.class)) {
-            constraintsBuilder.minNumerical((T)Double.valueOf(field.getAnnotation(Constrain.Min.class).value()));
-        }
-        if (field.isAnnotationPresent(Constrain.Max.class)) {
-            constraintsBuilder.maxNumerical((T)Double.valueOf(field.getAnnotation(Constrain.Max.class).value()));
+        for(Annotation a : field.getAnnotations()) {
+            Class<? extends Annotation> annoCls = a.annotationType();
+            if(annoCls.isAnnotationPresent(ConstraintClass.class)) {
+                @SuppressWarnings("rawtypes")
+                Class<? extends Constraint> cls = annoCls.getAnnotation(ConstraintClass.class).value();
+                try {
+                    Constraint<?> constraint = cls.getConstructor(annoCls).newInstance(a);
+                    if(constraint.getValueType().isAssignableFrom(wrapPrimitive(field.getType()))) {
+                        @SuppressWarnings("unchecked")
+                        Constraint<? super T> c = (Constraint<? super T>)constraint;
+                        constraintsBuilder.constraint(c);
+                    } else {
+                        throw new MalformedFieldException("Field "
+                            + field.getDeclaringClass().getCanonicalName()
+                            + "#" + field.getName()
+                            + " has a constraint of type " + constraint.getValueType().getCanonicalName()
+                            + " while it has to be a supertype of " + field.getType().getCanonicalName());
+                    }
+                } catch(NoSuchMethodException|IllegalAccessException|InstantiationException e) {
+                    throw new IllegalStateException("Cannot construct constraint", e);
+                } catch(InvocationTargetException e) {
+                    Throwable th = e.getCause();
+                    if(th instanceof Error) {
+                        throw (Error) th;
+                    } else {
+                        throw new MalformedFieldException("Field "
+                            + field.getDeclaringClass().getCanonicalName()
+                            + "#" + field.getName()
+                            + " has a malformed constraint " + a, th);
+                    }
+                }
+            }
         }
         constraintsBuilder.finish();
     }
@@ -205,7 +233,7 @@ public class AnnotatedSettings {
         if (type.equals(double.class)) return (Class<T>) Double.class;
         if (type.equals(float.class)) return (Class<T>) Float.class;
         if (type.equals(long.class)) return (Class<T>) Long.class;
-        return null;
+        return type;
     }
 
     private static FieldProperties getProperties(Field field) {
